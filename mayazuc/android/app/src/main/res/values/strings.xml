@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">mayazuc</string>
+    <string name="title_activity_main">mayazuc</string>
+    <string name="package_name">ionic.mayazuc</string>
+    <string name="custom_url_scheme">ionic.mayazuc</string>
+</resources>

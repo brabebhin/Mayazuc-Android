@@ -1,0 +1,7 @@
+{
+  "name": "mayazuc",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
