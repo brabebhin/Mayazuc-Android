@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ignore_leading_numbers_key">ignore_leading_numbers_key</string>
+    <string name="shuffle_enabled">shuffle_enabled</string>
+    <string name="repeat_mode">repeat_mode</string>
+    <string name="reset_album_are_cache_key">reset_album_are_cache_key</string>
+    <string name="skip_to_queue_item_in_external_controller">skip_to_queue_item_in_external_controller</string>
+</resources>
