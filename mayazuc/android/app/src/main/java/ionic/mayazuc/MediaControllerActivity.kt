@@ -1,15 +1,15 @@
 package ionic.mayazuc
 
 import android.content.ComponentName
-import androidx.activity.ComponentActivity
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import com.getcapacitor.BridgeActivity
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 
-abstract class MediaControllerActivity : ComponentActivity() {
+abstract class MediaControllerActivity : BridgeActivity() {
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     protected val controller: MediaController?
         get() = if (controllerFuture.isDone) controllerFuture.get() else null

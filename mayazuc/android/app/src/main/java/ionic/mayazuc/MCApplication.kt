@@ -12,7 +12,7 @@ class MCApplication : Application() {
         instance = this
         CopyDefaultAlbumArtResources();
         super.onCreate()
-        AlbumArtScanWorker.StartWorking(false, applicationContext)
+        //AlbumArtScanWorker.StartWorking(false, applicationContext)
     }
 
     private fun CopyDefaultAlbumArtResources() {
@@ -20,20 +20,20 @@ class MCApplication : Application() {
 
         PlayViewGenericPath = CopyResourceToFolder(
             Paths.get(resourcesFolder.absolutePath, "playviewgeneric.png").toString(),
-            com.mcosmin.MayazucLite.R.drawable.playviewgeneric
+            R.drawable.playviewgeneric
         );
         FolderIconPath = CopyResourceToFolder(
             Paths.get(resourcesFolder.absolutePath, "foldericon.png").toString(),
-            com.mcosmin.MayazucLite.R.drawable.foldericon
+            R.drawable.foldericon
         );
         MissingAlbumArtIconPath = CopyResourceToFolder(
             Paths.get(resourcesFolder.absolutePath, "androidmissingalbumart.png").toString(),
-            com.mcosmin.MayazucLite.R.drawable.androidmissingalbumart
+            R.drawable.androidmissingalbumart
         );
 
         EnqueueViewGenericPath = CopyResourceToFolder(
             Paths.get(resourcesFolder.absolutePath, "enqueueviewgeneric.png").toString(),
-            com.mcosmin.MayazucLite.R.drawable.addtonowplayinggeneric
+            R.drawable.addtonowplayinggeneric
         )
     }
 

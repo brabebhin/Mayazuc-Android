@@ -28,7 +28,7 @@ object Utilities {
     fun GetAndroidAutoCoverResource(resourceName: String): Uri? {
         val uri = Uri.Builder()
             .scheme(ContentResolver.SCHEME_CONTENT)
-            .authority(AlbumArtContentProvider.Authority)
+            .authority(AlbumArtContentProvider2.Authority)
             .appendPath(resourceName)
             .build()
 

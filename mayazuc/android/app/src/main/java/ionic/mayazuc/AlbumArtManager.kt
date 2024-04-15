@@ -154,7 +154,7 @@ class AlbumArtScanWorker(context: Context, parameters: WorkerParameters) :
         fun StartWorking(deleteCache: Boolean, context: Context) {
             WorkManager.getInstance(context)
                 .beginUniqueWork(
-                    context.getString(com.mcosmin.MayazucLite.R.string.album_art_job_name),
+                    context.getString(R.string.album_art_job_name),
                     ExistingWorkPolicy.KEEP,
                     OneTimeWorkRequest.Builder(AlbumArtScanWorker::class.java).setInputData(
                         Data.Builder().putBoolean(

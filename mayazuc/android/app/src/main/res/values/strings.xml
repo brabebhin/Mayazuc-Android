@@ -4,4 +4,33 @@
     <string name="title_activity_main">mayazuc</string>
     <string name="package_name">ionic.mayazuc</string>
     <string name="custom_url_scheme">ionic.mayazuc</string>
+
+    <!-- Sync Preferences -->
+    <string name="library_ignore_leading_numbers_title">Ignore leading numbers</string>
+    <string name="library_ignore_leading_numbers_description">Ignore leading numbers in file names. This will remove track ordinal or similar meta from file names</string>
+    <string name="default_item_tapped_action_in_external_apps_settings_key">default_item_tapped_action_in_external_apps</string>
+    <string name="show_hierarchy_commands_in_browser">show_hierarchy_commands_in_browser</string>
+
+    <string name="RootCategoryFolder">RootCategoryFolder</string>
+
+    <string name="title_activity_media_playback">MediaPlaybackActivity</string>
+    <string name="title_activity_media_player">MediaPlayerActivity</string>
+    <!-- Strings used for fragments for navigation -->
+
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="shuffle">Shuffle modes</string>
+    <string name="repeat">Repeat modes</string>
+    <string name="no_item_prompt">No items in playlist</string>
+    <string name="title_activity_playback_queue">PlaybackQueueActivity</string>
+    <string name="notification_channel_id">AlbumArtScanNotification</string>
+    <string name="notification_title">Album art background worker</string>
+    <string name="cancel_album_art_scan">Cancel album art scan</string>
+    <string name="album_art_job_name">Album art scan job name</string>
+    <string name="reset_album_art_description">Reset album art cache. Deletes cached album art and starts scan</string>
+    <string name="reset_album_art_title">Reset album art cache</string>
+    <string name="title_activity_settings_compose">SettingsActivityCompose</string>
+    <string name="title_activity_media_player2">MediaPlayerActivity2</string>
+    <string name="title_activity_single_activity">SingleActivityActivity</string>
 </resources>

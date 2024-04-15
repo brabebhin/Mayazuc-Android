@@ -8,10 +8,11 @@ import android.os.CancellationSignal
 import android.os.ParcelFileDescriptor
 import java.io.File
 
+class AlbumArtContentProvider2 : ContentProvider() {
 
-class AlbumArtContentProvider : ContentProvider() {
-
-
+    companion object {
+        public val Authority: String = "mayazuc2";
+    }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
         TODO("Implement this to handle requests to delete one or more rows")

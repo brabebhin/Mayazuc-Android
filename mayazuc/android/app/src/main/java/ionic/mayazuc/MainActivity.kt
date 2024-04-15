@@ -40,8 +40,6 @@ import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors
 import ionic.mayazuc.MediaItemTree.ROOT_ID
-import ionic.mayazuc.UiUtilities.ElementWithPlainTooltip
-import ionic.mayazuc.UiUtilities.MayazucScaffold
 import ionic.mayazuc.Utilities.getPlaybaleItems
 
 private const val savedState_backstack = "backstack"
@@ -51,7 +49,7 @@ private const val savedState_CurrentMediaId = "currentMediaId"
 private const val savedState_TargetMediaId = "TargetMediaId"
 
 @UnstableApi
-class MainActivity : MediaControllerActivity() {
+class MainActivityOld : MediaControllerActivity() {
     var currentMediaId: String = ROOT_ID;
     var currentMediaItems: List<MediaItem> = ArrayList<MediaItem>();
     val backSack = BackSack();
@@ -130,104 +128,6 @@ class MainActivity : MediaControllerActivity() {
 
     private fun pushRoot(mediaItemsResult: List<MediaItem>) {
 
-        val playableItems = mediaItemsResult.toMutableList().getPlaybaleItems();
-        setContent {
-
-            val scrollBehavior =
-                TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-            MayazucScaffold(
-                topBar = {
-                    MediumTopAppBar(
-                        title = {
-                            Text(
-                                text = currentMediaId,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-
-                            )
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = { openMediaItem(ROOT_ID) }) {
-                                Icon(
-                                    imageVector = Icons.Default.Home,
-                                    contentDescription = "Home"
-                                )
-                            }
-                        },
-                        actions = {
-                            if (playableItems.isNotEmpty()) {
-                                ElementWithPlainTooltip(tooltip = "Play") {
-                                    IconButton(onClick = {
-                                        MediaPlayerUtilities.playMediaItemsAsync(
-                                            playableItems
-                                        );
-                                    }) {
-                                        Image(
-                                            painterResource(id = R.drawable.playviewgeneric),
-                                            contentDescription = "Play",
-                                            modifier = Modifier.size(32.dp)
-                                        )
-                                    };
-                                }
-
-                                ElementWithPlainTooltip(tooltip = "Add to now playing") {
-                                    IconButton(onClick = {
-                                        MediaPlayerUtilities.addMediaItemsToNowPlayingAsync(
-                                            playableItems
-                                        )
-                                    }) {
-                                        Image(
-                                            painterResource(id = R.drawable.addtonowplayinggeneric),
-                                            contentDescription = "Add to now playing",
-                                            modifier = Modifier.size(32.dp)
-                                        )
-                                    }
-                                }
-
-                                ElementWithPlainTooltip(tooltip = "Add to playlist") {
-                                    IconButton(
-                                        onClick = { /*add to playlist*/ }) {
-                                        Image(
-                                            painterResource(id = R.drawable.foldericon),
-                                            contentDescription = "Add to playlist",
-                                            modifier = Modifier.size(32.dp)
-                                        )
-                                    }
-                                }
-                                if (playableItems.size == 1) {
-                                    ElementWithPlainTooltip(tooltip = "Skip to queue item") {
-                                        IconButton(
-                                            onClick = {
-                                                MediaPlayerUtilities.skipToQueueItemAsync(
-                                                    playableItems[0]
-                                                )
-                                            }) {
-                                            Image(
-                                                painterResource(id = R.drawable.skiptoqueueitem),
-                                                contentDescription = "Skip to queue item",
-                                                modifier = Modifier.size(32.dp)
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-
-                        },
-                        scrollBehavior = scrollBehavior
-                    )
-                },
-                bottomBar = {
-                    BottomAppBar(
-                    ) {
-                        BottomAppBarRenderer.CreateBottomAppBar(this@MainActivity, 0)
-                    }
-                },
-                content = {  RenderScreen(mediaItemsResult)
-                },
-                scrollBehavior
-            );
-        }
     }
 
     private fun CheckPermissions() {
@@ -265,65 +165,6 @@ class MainActivity : MediaControllerActivity() {
             HandleNewIntenet(intent)
         } else {
             HandleNewIntenet(intent)
-        }
-    }
-
-    @Composable
-    fun RenderScreen(mediaItemsResult: List<MediaItem>) {
-        // A surface container using the 'background' color from the theme
-
-        currentMediaItems = mediaItemsResult;
-        Column {
-
-            Column(Modifier.weight(1f)) {
-                if (mediaItemsResult.size == 1 && mediaItemsResult.get(0).mediaMetadata.folderType == MediaMetadata.FOLDER_TYPE_NONE) {
-
-                    val item = mediaItemsResult.get(0)
-                    MediaBrowserMediaItemRenderer.RenderSingleItem(
-                        data = item,
-                        isHorizontal = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE,
-                        playMethod = {
-                            MediaPlayerUtilities.playMediaItemsAsync(
-                                currentMediaItems
-                            )
-                        },
-                        enqueueMethod = {
-                            MediaPlayerUtilities.addMediaItemsToNowPlayingAsync(
-                                currentMediaItems
-                            )
-                        },
-                        addToPlaylist = {},
-                        SkipToIndexMethod = {
-                            MediaPlayerUtilities.skipToQueueItemAsync(
-                                currentMediaItems.get(0)
-                            )
-                        }
-                    )
-
-                } else {
-                    val listState = rememberLazyListState()
-                    LaunchedEffect(mediaItemsResult.size) {
-                        listState.scrollToItem(0)
-                    }
-                    LazyColumn(state = listState) {
-                        items(items = mediaItemsResult, itemContent = { item ->
-
-                            MediaBrowserMediaItemRenderer.RenderListView(
-                                data = item, clickMethod = {
-                                    if (item.mediaMetadata.folderType == FOLDER_TYPE_TITLES) {
-
-                                        MediaPlayerUtilities.playMediaItemsAsync(listOf(item));
-
-                                    } else {
-                                        backSack.Push(currentMediaId!!);
-                                        openMediaItem(it.mediaId)
-                                    }
-                                }
-                            )
-                        })
-                    }
-                }
-            }
         }
     }
 
