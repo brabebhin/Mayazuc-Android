@@ -19,10 +19,9 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 
 public class MainActivity extends MediaControllerActivity {
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        registerPlugin(MediaControllerIonicPlugin.class);
         super.onCreate(savedInstanceState);
         CheckPermissions();
     }

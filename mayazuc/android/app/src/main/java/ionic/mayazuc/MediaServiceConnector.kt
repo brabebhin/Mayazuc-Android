@@ -8,6 +8,7 @@ import androidx.media3.session.SessionToken
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import com.google.common.util.concurrent.SettableFuture
 import ionic.mayazuc.MediaItemTree.ROOT_ID
 
 object MediaServiceConnector {
@@ -39,12 +40,20 @@ object MediaServiceConnector {
         }
     }
 
-    fun openMediaId(mediaId: String?): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>>?
+    fun openMediaId(mediaId: String?): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>>
     {
         var finalMediaId = ROOT_ID
         if(mediaId != null)
             finalMediaId = mediaId!!.SafeMediaId()
-        return browser?.getChildren(finalMediaId, 0, Int.MAX_VALUE, null)
+        val  returnValue = SettableFuture.create<LibraryResult<ImmutableList<MediaItem>>>();
+        initializeBrowser().addListener({
+            val children =browser?.getChildren(finalMediaId, 0, Int.MAX_VALUE, null);
+            children?.addListener({
+                  returnValue.set(children.get());
+            }, MoreExecutors.directExecutor());
+        },MoreExecutors.directExecutor())
+
+        return returnValue;
     }
 
     fun getLibraryRoot(): ListenableFuture<LibraryResult<MediaItem>>?
