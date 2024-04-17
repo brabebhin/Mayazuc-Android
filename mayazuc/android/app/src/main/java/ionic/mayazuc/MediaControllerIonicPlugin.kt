@@ -77,7 +77,7 @@ data class MediaItemDTO(val mediaId: String, val title: String, val imageUrl: St
             return MediaItemDTO(
                 item.mediaId,
                 item.mediaMetadata.title.toString(),
-                item.mediaMetadata.artworkUri.toString(),
+                item.mediaMetadata.artworkUri!!.path!!,
                 type
             );
         }

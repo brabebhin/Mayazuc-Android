@@ -10,6 +10,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.google.common.util.concurrent.SettableFuture
 import ionic.mayazuc.MediaItemTree.ROOT_ID
+import ionic.mayazuc.Utilities.getPlaybaleItems
 
 object MediaServiceConnector {
     private var browserFuture: ListenableFuture<MediaBrowser>? = null
@@ -44,13 +45,24 @@ object MediaServiceConnector {
     {
         var finalMediaId = ROOT_ID
         if(mediaId != null)
-            finalMediaId = mediaId!!.SafeMediaId()
+            finalMediaId = mediaId;
         val  returnValue = SettableFuture.create<LibraryResult<ImmutableList<MediaItem>>>();
         initializeBrowser().addListener({
-            val children =browser?.getChildren(finalMediaId, 0, Int.MAX_VALUE, null);
-            children?.addListener({
-                  returnValue.set(children.get());
-            }, MoreExecutors.directExecutor());
+                val children = browser?.getChildren(finalMediaId, 0, Int.MAX_VALUE, null);
+                children?.addListener({
+
+                    if(finalMediaId.isPlayCommand())
+                    {
+                        browser?.setMediaItems(children.get().value!!.getPlaybaleItems());
+                    }
+                    else if(finalMediaId.isEnqueueCommand())
+                    {
+                        browser?.addMediaItems(children.get().value!!.getPlaybaleItems());
+                    }
+                        returnValue.set(children.get());
+                }, MoreExecutors.directExecutor());
+
+
         },MoreExecutors.directExecutor())
 
         return returnValue;

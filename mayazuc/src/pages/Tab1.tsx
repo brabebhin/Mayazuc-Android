@@ -13,7 +13,7 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Checkbox from '@mui/material/Checkbox';
 import Avatar from '@mui/material/Avatar';
 import { Box } from '@mui/material';
-import { App as CapacitorApp } from '@capacitor/app'
+import { Capacitor } from '@capacitor/core'
 import { backspace } from 'ionicons/icons';
 
 class Tab1 extends Component {
@@ -116,8 +116,8 @@ class Tab1 extends Component {
           </IonHeader>
 
           <IonContent>
-            <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-              <List dense sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+            <Box sx={{ width: '100%'}}>
+              <List dense sx={{ width: '100%' }}>
                 {this.mediaItemsTitles.map((value) => {
                   const labelId = `checkbox-list-secondary-label-${value}`;
                   return (
@@ -129,7 +129,7 @@ class Tab1 extends Component {
                         <ListItemAvatar>
                           <Avatar
                             alt={`${value.title}`}
-                            src={value.imageUrl}
+                            src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
                           />
                         </ListItemAvatar>
                         <ListItemText id={labelId} primary={`${value.title}`} />
@@ -139,7 +139,7 @@ class Tab1 extends Component {
                 })}
               </List>
 
-              <List dense sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+              <List dense sx={{ width: '100%' }}>
                 {this.mediaItemsMixed.map((value) => {
                   const labelId = `checkbox-list-secondary-label-${value}`;
                   return (
@@ -152,7 +152,7 @@ class Tab1 extends Component {
                         <ListItemAvatar>
                           <Avatar
                             alt={`${value.title}`}
-                            src={value.imageUrl}
+                            src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
                           />
                         </ListItemAvatar>
                         <ListItemText id={labelId} primary={`${value.title}`} />
@@ -162,7 +162,7 @@ class Tab1 extends Component {
                 })}
               </List>
 
-              <List dense sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+              <List dense sx={{ width: '100%' }}>
                 {this.mediaItemsFiles.map((value) => {
                   const labelId = `checkbox-list-secondary-label-${value}`;
                   return (
@@ -182,7 +182,7 @@ class Tab1 extends Component {
                         <ListItemAvatar>
                           <Avatar
                             alt={`${value.title}`}
-                            src={value.imageUrl}
+                            src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
                           />
                         </ListItemAvatar>
                         <ListItemText id={labelId} primary={`${value.title}`} />
