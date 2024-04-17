@@ -1,10 +1,9 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFab, IonFabButton, IonIcon } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFab, IonFabButton, IonIcon, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
 import './Tab1.css';
 import { MediaItemDto } from '../MediaItemDto';
 import MediaController from '../android-media-controller';
-import { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { render } from 'react-dom';
-import * as React from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -14,193 +13,219 @@ import Checkbox from '@mui/material/Checkbox';
 import Avatar from '@mui/material/Avatar';
 import { Box } from '@mui/material';
 import { Capacitor } from '@capacitor/core'
-import { backspace } from 'ionicons/icons';
+import { App } from '@capacitor/app';
+import { forceUpdate } from 'ionicons/dist/types/stencil-public-runtime';
 
-class Tab1 extends Component {
+const Tab1: React.FC = () => {
+  const backStack: MediaItemDto[] = [];
 
-  private mediaItemsMixed: MediaItemDto[] = [];
-  private mediaItemsTitles: MediaItemDto[] = [];
-  private mediaItemsFiles: MediaItemDto[] = []
-  private backStack: MediaItemDto[] = [];
-  private currentItem: MediaItemDto | undefined = undefined;
+  const [currentItem, setCurrentItem] = useState<MediaItemDto>(new MediaItemDto());
+  const [mediaItemsFiles, setmediaItemsFiles] = useState<MediaItemDto[]>([]);
+  const [mediaItemsMixed, setmediaItemsMixed] = useState<MediaItemDto[]>([]);
+  const [mediaItemsTitles, setmediaItemsTitles] = useState<MediaItemDto[]>([]);
 
-  rootMediaItem(): MediaItemDto {
+  const rootMediaItem = () => {
     let item: MediaItemDto = new MediaItemDto();
     item.mediaId = "[rootID]";
     return item;
-  }
+  };
 
-  constructor(props: {}) {
-    super(props);
-  }
+  useEffect(() => {
+    // Code to run on first initialization
+    console.log('Component initialized');
+    componentDidMount();
+  }, []); // Empty dependency array ensures that the effect runs only once on component mount
 
 
-  async componentDidMount() {
+  const handleBackButton = async () => {
+    // Your logic to handle the back button press
+    console.log('Android back button pressed');
+    console.log('backstack has ' + backStack.length);
+    var previousItem = backStack.pop();
+    if (previousItem != null) {
+      await loadMediaItem(previousItem!, false);
+      return true;
+    }
+    else
+      return false;
+  };
+
+  // Register the back button handler when the page enters the view stack
+  useIonViewDidEnter(() => {
+    alert("registering back button");
+
+    App.addListener('backButton', handleBackButton);
+  });
+
+  useIonViewDidLeave(() => {
+    alert("unmounting component");
+    App.removeAllListeners();
+  });
+
+  const componentDidMount = async () => {
     // Perform initialization tasks, data fetching, etc.
-    await this.loadMediaItem(this.rootMediaItem(), true);
+    await loadMediaItem(rootMediaItem(), true);
     //alert("loading back button handler");
 
-    document.addEventListener('ionBackButton', (ev) => {
-      (ev as CustomEvent).detail.register(10, async (processNextHandler: () => void) => {
-        //alert("back button pressed");
+    // document.addEventListener('ionBackButton', (ev) => {
+    //   (ev as CustomEvent).detail.register(10, async (processNextHandler: () => void) => {
+    //     alert("back button pressed");
 
-        var previousItem = this.backStack.pop();
-        if (previousItem != null)
-          await this.loadMediaItem(previousItem!, false);
-        else
-          processNextHandler();
-      });
-    });
-  }
+    //     var previousItem = backStack.pop();
+    //     if (previousItem != null)
+    //       await loadMediaItem(previousItem!, false);
+    //     else
+    //       processNextHandler();
+    //   });
+    // });
+  };
 
-  componentWillUnmount() {
+  const componentWillUnmount = () => {
     // Perform cleanup tasks, unsubscribe from events, etc.
     //alert("unloading back button handler");
     //document.removeEventListener('ionBackButton', this.backButtonHandler);
-  }
+  };
 
-  async loadMediaItem(item: MediaItemDto, addToBackStack: boolean): Promise<void> {
+  const loadMediaItem = async (item: MediaItemDto, addToBackStack: boolean): Promise<void> => {
 
-    if (this.currentItem != undefined && addToBackStack) {
-      this.backStack.push(this.currentItem!);
+    if (currentItem != undefined && addToBackStack) {
+      backStack.push(currentItem!);
     }
 
-    await this.loadMediaID(item.mediaId);
-    this.currentItem = item;
-  }
+    await loadMediaID(item.mediaId);
+    setCurrentItem(item);
+  };
 
 
-  async loadMediaID(mediaItem: string): Promise<void> {
-
-    this.mediaItemsMixed.splice(0, this.mediaItemsMixed.length);
-    this.mediaItemsTitles.splice(0, this.mediaItemsTitles.length);
-    this.mediaItemsFiles.splice(0, this.mediaItemsFiles.length);
+  const loadMediaID = async (mediaItem: string): Promise<void> => {
 
     const { value } = await MediaController.openMediaId({ value: mediaItem });
     console.log("B:AB:ABLA" + value);
+
+    var newMixedItems: MediaItemDto[] = [];
+    var newMFileItems: MediaItemDto[] = [];
+    var newTitleItems: MediaItemDto[] = [];
+
 
     var newItems: MediaItemDto[] = JSON.parse(value);
     for (let i = 0; i < newItems.length; i++) {
       var item = newItems[i];
       if (item.type == "FOLDER_TYPE_MIXED") {
-        this.mediaItemsMixed.push(item);
+        newMixedItems.push(item);
       }
       else if (item.type == "FOLDER_TYPE_TITLES") {
-        this.mediaItemsTitles.push(item);
+        newTitleItems.push(item);
       }
       else if (item.type == "FOLDER_TYPE_NONE") {
-        this.mediaItemsFiles.push(item);
+        newMFileItems.push(item);
       }
     }
-    this.forceUpdate();
-  }
+
+    setmediaItemsMixed(newMixedItems);
+    setmediaItemsTitles(newTitleItems);
+    setmediaItemsFiles(newMFileItems);
+  };
 
 
-  handleToggle(value: MediaItemDto): void {
+  const handleToggle = (value: MediaItemDto): void => {
     value.isSelected = !value.isSelected;
-  }
-
-  render() {
-    return (
-      <IonPage>
-        <IonHeader>
+  };
+  return (
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Media Browser</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent fullscreen>
+        <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle>Media Browser</IonTitle>
+            <IonTitle size="large">Tab 1</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <IonContent fullscreen>
-          <IonHeader collapse="condense">
-            <IonToolbar>
-              <IonTitle size="large">Tab 1</IonTitle>
-            </IonToolbar>
-          </IonHeader>
 
-          <IonContent>
-            <Box sx={{ width: '100%'}}>
-              <List dense sx={{ width: '100%' }}>
-                {this.mediaItemsTitles.map((value) => {
-                  const labelId = `checkbox-list-secondary-label-${value}`;
-                  return (
-                    <ListItem
-                      key={value.mediaId}
-                      disablePadding
-                    >
-                      <ListItemButton onClick={() => { this.loadMediaItem(value, true); }}>
-                        <ListItemAvatar>
-                          <Avatar
-                            alt={`${value.title}`}
-                            src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
-                          />
-                        </ListItemAvatar>
-                        <ListItemText id={labelId} primary={`${value.title}`} />
-                      </ListItemButton>
-                    </ListItem>
-                  );
-                })}
-              </List>
-
-              <List dense sx={{ width: '100%' }}>
-                {this.mediaItemsMixed.map((value) => {
-                  const labelId = `checkbox-list-secondary-label-${value}`;
-                  return (
-                    <ListItem
-                      key={value.mediaId}
-
-                      disablePadding
-                    >
-                      <ListItemButton onClick={() => { this.loadMediaItem(value, true); }}>
-                        <ListItemAvatar>
-                          <Avatar
-                            alt={`${value.title}`}
-                            src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
-                          />
-                        </ListItemAvatar>
-                        <ListItemText id={labelId} primary={`${value.title}`} />
-                      </ListItemButton>
-                    </ListItem>
-                  );
-                })}
-              </List>
-
-              <List dense sx={{ width: '100%' }}>
-                {this.mediaItemsFiles.map((value) => {
-                  const labelId = `checkbox-list-secondary-label-${value}`;
-                  return (
-                    <ListItem
-                      key={value.mediaId}
-                      secondaryAction={
-                        <Checkbox
-                          edge="end"
-                          onChange={() => { this.handleToggle(value); alert(value.isSelected.toString()) }}
-                          checked={value.isSelected}
-                          inputProps={{ 'aria-labelledby': labelId }}
+        <IonContent>
+          <Box sx={{ width: '100%' }}>
+            <List dense sx={{ width: '100%' }}>
+              {mediaItemsTitles.map((value) => {
+                const labelId = `checkbox-list-secondary-label-${value}`;
+                return (
+                  <ListItem
+                    key={value.mediaId}
+                    disablePadding
+                  >
+                    <ListItemButton onClick={() => { loadMediaItem(value, true); }}>
+                      <ListItemAvatar>
+                        <Avatar
+                          alt={`${value.title}`}
+                          src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
                         />
-                      }
-                      disablePadding
-                    >
-                      <ListItemButton onClick={() => { this.loadMediaItem(value, true); }}>
-                        <ListItemAvatar>
-                          <Avatar
-                            alt={`${value.title}`}
-                            src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
-                          />
-                        </ListItemAvatar>
-                        <ListItemText id={labelId} primary={`${value.title}`} />
-                      </ListItemButton>
-                    </ListItem>
-                  );
-                })}
-              </List>
+                      </ListItemAvatar>
+                      <ListItemText id={labelId} primary={`${value.title}`} />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              })}
+            </List>
 
-            </Box>
-          </IonContent>
+            <List dense sx={{ width: '100%' }}>
+              {mediaItemsMixed.map((value) => {
+                const labelId = `checkbox-list-secondary-label-${value}`;
+                return (
+                  <ListItem
+                    key={value.mediaId}
+
+                    disablePadding
+                  >
+                    <ListItemButton onClick={() => { loadMediaItem(value, true); }}>
+                      <ListItemAvatar>
+                        <Avatar
+                          alt={`${value.title}`}
+                          src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
+                        />
+                      </ListItemAvatar>
+                      <ListItemText id={labelId} primary={`${value.title}`} />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              })}
+            </List>
+
+            <List dense sx={{ width: '100%' }}>
+              {mediaItemsFiles.map((value) => {
+                const labelId = `checkbox-list-secondary-label-${value}`;
+                return (
+                  <ListItem
+                    key={value.mediaId}
+                    secondaryAction={
+                      <Checkbox
+                        edge="end"
+                        onChange={() => { handleToggle(value); alert(value.isSelected.toString()) }}
+                        checked={value.isSelected}
+                        inputProps={{ 'aria-labelledby': labelId }}
+                      />
+                    }
+                    disablePadding
+                  >
+                    <ListItemButton onClick={() => { loadMediaItem(value, true); }}>
+                      <ListItemAvatar>
+                        <Avatar
+                          alt={`${value.title}`}
+                          src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
+                        />
+                      </ListItemAvatar>
+                      <ListItemText id={labelId} primary={`${value.title}`} />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              })}
+            </List>
+
+          </Box>
         </IonContent>
-      </IonPage>
-    );
-  }
-
-}
-
-
+      </IonContent>
+    </IonPage>
+  );
+};
 
 export default Tab1;
