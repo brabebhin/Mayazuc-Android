@@ -1,6 +1,8 @@
-class MediaItemDto
+export class MediaItemDto
 {
-    mediaId: String = "";
-    title: String = "";
-    imageUrl: String = "";
+    mediaId: string = "";
+    title: string = "";
+    imageUrl: string = "";
+    isSelected: boolean = false;
+    type: string = "folder";
 }

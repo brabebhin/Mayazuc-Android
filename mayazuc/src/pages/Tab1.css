@@ -1,0 +1,15 @@
+.lisview-item-container {
+    grid-template-columns: 20fr auto;
+    display: grid;
+    column-gap: 50px;
+}
+
+.item1 {
+    grid-column-start: 1;
+    grid-column-end: 1;
+}
+
+.item2 {
+    grid-column-start: 2;
+    grid-column-end: 2;
+}

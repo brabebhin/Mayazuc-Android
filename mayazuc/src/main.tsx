@@ -6,7 +6,8 @@ import { FluentProvider, webLightTheme } from '@fluentui/react-components';
 const container = document.getElementById('root');
 const root = createRoot(container!);
 root.render(
-  <FluentProvider theme={webLightTheme}>
+  
+  <React.StrictMode>
     <App />
-  </FluentProvider>
+  </React.StrictMode>
 );
