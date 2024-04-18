@@ -240,3 +240,7 @@ html {
   https://ionicframework.com/docs/layout/dynamic-font-scaling */
   --ion-dynamic-font: var(--ion-default-dynamic-font);
 }
+
+ion-tab-button::part(native):hover {
+  color: inherit;
+}

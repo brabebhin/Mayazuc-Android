@@ -3,6 +3,7 @@ package ionic.mayazuc
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
@@ -207,7 +208,7 @@ class AlbumArtScanWorker(context: Context, parameters: WorkerParameters) :
     // Creates an instance of ForegroundInfo which can be used to update the
     // ongoing notification.
     private fun createForegroundInfo(progress: String): ForegroundInfo {
-        val notificationId = 792847231;
+        val notificationId = 284723908;
         val id = applicationContext.getString(R.string.notification_channel_id)
         val title = applicationContext.getString(R.string.notification_title)
         val cancel = applicationContext.getString(R.string.cancel_album_art_scan)
@@ -231,7 +232,16 @@ class AlbumArtScanWorker(context: Context, parameters: WorkerParameters) :
             .addAction(android.R.drawable.ic_delete, cancel, intent)
             .build()
 
-        return ForegroundInfo(notificationId, notification)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+           return ForegroundInfo(
+                notificationId,
+                notification,
+                FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            return ForegroundInfo(notificationId, notification)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

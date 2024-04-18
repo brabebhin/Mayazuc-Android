@@ -12,7 +12,6 @@ class MCApplication : Application() {
         instance = this
         CopyDefaultAlbumArtResources();
         super.onCreate()
-        //AlbumArtScanWorker.StartWorking(false, applicationContext)
     }
 
     private fun CopyDefaultAlbumArtResources() {

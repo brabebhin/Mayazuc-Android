@@ -14,7 +14,6 @@ import Avatar from '@mui/material/Avatar';
 import { Box } from '@mui/material';
 import { Capacitor } from '@capacitor/core'
 import { App } from '@capacitor/app';
-import { forceUpdate } from 'ionicons/dist/types/stencil-public-runtime';
 
 const Tab1: React.FC = () => {
   const backStack = useRef<MediaItemDto[]>([]);
@@ -68,24 +67,6 @@ const Tab1: React.FC = () => {
     // Perform initialization tasks, data fetching, etc.
     await loadMediaItem(rootMediaItem(), true);
     //alert("loading back button handler");
-
-    // document.addEventListener('ionBackButton', (ev) => {
-    //   (ev as CustomEvent).detail.register(10, async (processNextHandler: () => void) => {
-    //     alert("back button pressed");
-
-    //     var previousItem = backStack.pop();
-    //     if (previousItem != null)
-    //       await loadMediaItem(previousItem!, false);
-    //     else
-    //       processNextHandler();
-    //   });
-    // });
-  };
-
-  const componentWillUnmount = () => {
-    // Perform cleanup tasks, unsubscribe from events, etc.
-    //alert("unloading back button handler");
-    //document.removeEventListener('ionBackButton', this.backButtonHandler);
   };
 
   const loadMediaItem = async (item: MediaItemDto, addToBackStack: boolean): Promise<void> => {

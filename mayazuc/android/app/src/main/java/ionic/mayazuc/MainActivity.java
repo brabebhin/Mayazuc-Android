@@ -64,6 +64,7 @@ public class MainActivity extends MediaControllerActivity {
     }
 
     private void HandleNewIntenet(Intent intent) {
+        AlbumArtScanWorker.Companion.StartWorking(false, MCApplication.Companion.getContext());
     }
 
     private String getFileManagementPermission() {
