@@ -1,7 +1,9 @@
 package ionic.mayazuc
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.LibraryResult
 import androidx.media3.session.MediaBrowser
 import androidx.media3.session.SessionToken
@@ -18,6 +20,7 @@ object MediaServiceConnector {
     private val browser: MediaBrowser?
         get() = if (browserFuture?.isDone!!) browserFuture?.get() else null
 
+    @SuppressLint("UnsafeOptInUsageError")
     fun initializeBrowser(): ListenableFuture<MediaBrowser> {
         synchronized(this) {
             if (browserFuture == null) {

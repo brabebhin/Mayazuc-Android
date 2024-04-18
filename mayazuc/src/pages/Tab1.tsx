@@ -2,7 +2,7 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFab, IonFabBut
 import './Tab1.css';
 import { MediaItemDto } from '../MediaItemDto';
 import MediaController from '../android-media-controller';
-import React, { Component, useEffect, useState } from 'react';
+import React, { Component, useEffect, useState, useRef } from 'react';
 import { render } from 'react-dom';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -17,9 +17,9 @@ import { App } from '@capacitor/app';
 import { forceUpdate } from 'ionicons/dist/types/stencil-public-runtime';
 
 const Tab1: React.FC = () => {
-  const backStack: MediaItemDto[] = [];
+  const backStack = useRef<MediaItemDto[]>([]);
 
-  const [currentItem, setCurrentItem] = useState<MediaItemDto>(new MediaItemDto());
+  const currentItem = useRef<MediaItemDto | null>(null);
   const [mediaItemsFiles, setmediaItemsFiles] = useState<MediaItemDto[]>([]);
   const [mediaItemsMixed, setmediaItemsMixed] = useState<MediaItemDto[]>([]);
   const [mediaItemsTitles, setmediaItemsTitles] = useState<MediaItemDto[]>([]);
@@ -40,25 +40,27 @@ const Tab1: React.FC = () => {
   const handleBackButton = async () => {
     // Your logic to handle the back button press
     console.log('Android back button pressed');
-    console.log('backstack has ' + backStack.length);
-    var previousItem = backStack.pop();
+    console.log('backstack has ' + backStack.current.length);
+
+    var previousItem = backStack.current.pop();
+  
+    console.log('privious item id ' + previousItem!.mediaId);
     if (previousItem != null) {
       await loadMediaItem(previousItem!, false);
       return true;
     }
     else
       return false;
+    
   };
 
   // Register the back button handler when the page enters the view stack
   useIonViewDidEnter(() => {
-    alert("registering back button");
 
     App.addListener('backButton', handleBackButton);
   });
 
   useIonViewDidLeave(() => {
-    alert("unmounting component");
     App.removeAllListeners();
   });
 
@@ -87,13 +89,16 @@ const Tab1: React.FC = () => {
   };
 
   const loadMediaItem = async (item: MediaItemDto, addToBackStack: boolean): Promise<void> => {
-
-    if (currentItem != undefined && addToBackStack) {
-      backStack.push(currentItem!);
+    
+    if (currentItem.current != null && addToBackStack) {
+      console.log('pushing to backstack ' + currentItem!.current!.mediaId);
+      backStack.current.push(currentItem!.current!);
     }
 
     await loadMediaID(item.mediaId);
-    setCurrentItem(item);
+    currentItem.current = item;
+    console.log('current item id = ' + currentItem!.current!.mediaId);
+
   };
 
 
