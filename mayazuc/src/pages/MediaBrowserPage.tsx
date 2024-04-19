@@ -1,5 +1,5 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFab, IonFabButton, IonIcon, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
-import './Tab1.css';
+import './MediaBrowserPage.css';
 import { FODLER_TYPE_MIXED, FOLDER_TYPE_NONE, FOLDER_TYPE_TITLES, MediaItemDto } from '../MediaItemDto';
 import MediaController from '../android-media-controller';
 import React, { Component, useEffect, useState, useRef } from 'react';
@@ -16,7 +16,7 @@ import { Capacitor } from '@capacitor/core'
 import { App, BackButtonListenerEvent } from '@capacitor/app';
 import { useParams, useHistory } from 'react-router-dom';
 
-const Tab1: React.FC = () => {
+const MediaBrowserPage: React.FC = () => {
 
   const currentItem = useRef<MediaItemDto | null>(null);
   const [mediaItemsFiles, setmediaItemsFiles] = useState<MediaItemDto[]>([]);
@@ -50,12 +50,14 @@ const Tab1: React.FC = () => {
 
   const loadMediaItem = async (item: MediaItemDto): Promise<void> => {
 
+    console.log("OPENING MEDIA ITEM " + item.mediaId);
+    
     if (item.type == FODLER_TYPE_MIXED) {      
       let finalMediaIdRoute = item.mediaId;
       if (finalMediaIdRoute.startsWith('/')) {
         finalMediaIdRoute = finalMediaIdRoute.substring(1, finalMediaIdRoute.length);
       }
-      let route = `/tab1/${encodeURIComponent(finalMediaIdRoute)}`
+      let route = `/mediabrowser/${encodeURIComponent(finalMediaIdRoute)}`
       history.push(route);
       currentItem.current = item;
     }
@@ -122,7 +124,7 @@ const Tab1: React.FC = () => {
                     key={value.mediaId}
                     disablePadding
                   >
-                    <ListItemButton onClick={() => { loadMediaItem(value, true); }}>
+                    <ListItemButton onClick={() => { loadMediaItem(value); }}>
                       <ListItemAvatar>
                         <Avatar
                           alt={`${value.title}`}
@@ -145,7 +147,7 @@ const Tab1: React.FC = () => {
 
                     disablePadding
                   >
-                    <ListItemButton onClick={() => { loadMediaItem(value, true); }}>
+                    <ListItemButton onClick={() => { loadMediaItem(value); }}>
                       <ListItemAvatar>
                         <Avatar
                           alt={`${value.title}`}
@@ -175,7 +177,7 @@ const Tab1: React.FC = () => {
                     }
                     disablePadding
                   >
-                    <ListItemButton onClick={() => { loadMediaItem(value, true); }}>
+                    <ListItemButton onClick={() => { loadMediaItem(value); }}>
                       <ListItemAvatar>
                         <Avatar
                           alt={`${value.title}`}
@@ -196,4 +198,4 @@ const Tab1: React.FC = () => {
   );
 };
 
-export default Tab1;
+export default MediaBrowserPage;

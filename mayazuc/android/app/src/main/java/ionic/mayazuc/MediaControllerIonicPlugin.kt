@@ -4,11 +4,16 @@ import android.os.Handler
 import android.os.Looper
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata.*
+import androidx.media3.session.LibraryResult
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.CapacitorPlugin
+import com.google.common.collect.ImmutableList
+import com.google.common.util.concurrent.FutureCallback
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.google.gson.Gson
 import ionic.mayazuc.Utilities.getPlaybaleItems
@@ -28,20 +33,36 @@ class MediaControllerIonicPlugin : Plugin() {
 
     @PluginMethod
     fun openMediaId(call: PluginCall) {
-
         Handler(Looper.getMainLooper()).post(Runnable {
-
             val mediaId = call.getString("value");
             val resultOperation = MediaServiceConnector.openMediaId(mediaId);
-            resultOperation.addListener({
-                val result = JSObject();
-                val items = ArrayList<MediaItemDTO>();
-                resultOperation.get().value?.forEach { items.add(MediaItemDTO.createFromMediaItem(it)) }
-                val converter = Gson();
-                val json = converter.toJson(items);
-                result.put("value", json)
-                call.resolve(result);
-            }, MoreExecutors.directExecutor());
+
+            Futures.addCallback(
+                resultOperation,
+                object : FutureCallback<LibraryResult<ImmutableList<MediaItem>>> {
+                    override fun onSuccess(result: LibraryResult<ImmutableList<MediaItem>>?) {
+                        val result = JSObject();
+                        val items = ArrayList<MediaItemDTO>();
+                        resultOperation.get().value?.forEach {
+                            items.add(
+                                MediaItemDTO.createFromMediaItem(
+                                    it
+                                )
+                            )
+                        }
+                        val converter = Gson();
+                        val json = converter.toJson(items);
+                        result.put("value", json);
+                        call.resolve(result);
+                    }
+
+                    override fun onFailure(t: Throwable) {
+                        genericErrorReturn(call)
+                    }
+
+                },
+                MoreExecutors.directExecutor()
+            )
         })
     }
 
@@ -51,36 +72,116 @@ class MediaControllerIonicPlugin : Plugin() {
 
             val mediaId = call.getString("value");
             val resultOperation = MediaServiceConnector.openMediaId(mediaId);
-            resultOperation.addListener({
-                val items = resultOperation.get().value?.getPlaybaleItems()!!
 
-                if (mediaId!!.isPlayCommand()) {
-                    MediaPlayerUtilities.playMediaItemsAsync(items);
-                } else if (mediaId!!.isEnqueueCommand()) {
-                    MediaPlayerUtilities.addMediaItemsToNowPlayingAsync(items)
-                }
+            Futures.addCallback(
+                resultOperation,
+                object : FutureCallback<LibraryResult<ImmutableList<MediaItem>>> {
+                    override fun onSuccess(result: LibraryResult<ImmutableList<MediaItem>>?) {
+                        val items = resultOperation.get().value?.getPlaybaleItems()!!
 
-                call.resolve();
-            }, MoreExecutors.directExecutor());
+                        if (mediaId!!.isPlayCommand()) {
+                            MediaServiceConnector.playMediaItemsAsync(items);
+                        } else if (mediaId!!.isEnqueueCommand()) {
+                            MediaServiceConnector.addMediaItemsToNowPlayingAsync(items)
+                        }
+
+                        call.resolve();
+                    }
+
+                    override fun onFailure(t: Throwable) {
+                        call.resolve();
+                    }
+
+                },
+                MoreExecutors.directExecutor()
+            )
         })
     }
 
     @PluginMethod
     fun getPlaybackQueue(call: PluginCall) {
 
+        Handler(Looper.getMainLooper()).post {
+
+            val resultOperation = MediaServiceConnector.getCurrentPlaybackQueue()
+            Futures.addCallback(resultOperation, object : FutureCallback<ImmutableList<MediaItem>> {
+                override fun onSuccess(result: ImmutableList<MediaItem>?) {
+                    mediaItemListReturn(resultOperation, call)
+                }
+
+                override fun onFailure(t: Throwable) {
+                    genericErrorReturn(call)
+                }
+
+            }, MoreExecutors.directExecutor())
+        }
+    }
+
+    @PluginMethod
+    fun skipToQueueItem(call: PluginCall) {
         Handler(Looper.getMainLooper()).post(Runnable {
 
-            val resultOperation = MediaPlayerUtilities.getCurrentPlaybackQueue()
+            val mediaId = call.getString("value");
+            val resultOperation = MediaServiceConnector.openMediaId(mediaId);
+
+            Futures.addCallback(
+                resultOperation,
+                object : FutureCallback<LibraryResult<ImmutableList<MediaItem>>> {
+                    override fun onSuccess(result: LibraryResult<ImmutableList<MediaItem>>?) {
+                        if (resultOperation.get().value!!.isEmpty()) {
+                            genericErrorReturn(call)
+                        }
+
+                        val skipItem = resultOperation.get()!!.value!!.get(0);
+                        var skipToQueueItemOperation = MediaServiceConnector.skipToQueueItemAsync(skipItem);
+
+                        Futures.addCallback(skipToQueueItemOperation, object: FutureCallback<ImmutableList<MediaItem>>
+                        {
+                            override fun onSuccess(result: ImmutableList<MediaItem>?) {
+                                mediaItemListReturn(skipToQueueItemOperation, call)
+                            }
+
+                            override fun onFailure(t: Throwable) {
+                                genericErrorReturn(call)
+                            }
+
+                        }, MoreExecutors.directExecutor());
+                    }
+
+                    override fun onFailure(t: Throwable) {
+                        genericErrorReturn(call)
+                    }
+
+                },
+                MoreExecutors.directExecutor()
+            )
+
             resultOperation.addListener({
-                val result = JSObject();
-                val items = ArrayList<MediaItemDTO>();
-                resultOperation.get().forEach { items.add(MediaItemDTO.createFromMediaItem(it)) }
-                val converter = Gson();
-                val json = converter.toJson(items);
-                result.put("value", json)
-                call.resolve(result);
+
+
+
             }, MoreExecutors.directExecutor());
         })
+    }
+
+    private fun mediaItemListReturn(
+        resultOperation: ListenableFuture<ImmutableList<MediaItem>>,
+        call: PluginCall
+    ) {
+        val result = JSObject();
+        val items = ArrayList<MediaItemDTO>();
+        resultOperation.get()
+            .forEach { items.add(MediaItemDTO.createFromMediaItem(it)) }
+        val converter = Gson();
+        val json = converter.toJson(items);
+        result.put("value", json)
+        call.resolve(result);
+    }
+
+    private fun genericErrorReturn(call: PluginCall) {
+        val result = JSObject();
+        result.put("value", "");
+        call.resolve(result);
     }
 
     @PluginMethod

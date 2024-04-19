@@ -46,6 +46,6 @@ abstract class MediaControllerActivity : BridgeActivity() {
     protected fun getPlaylistFromController(): ImmutableList<MediaItem> {
         val controller = this.controller ?: return ImmutableList.of()
 
-        return MediaPlayerUtilities.GetMediaItemsFromPlayer(controller)
+        return MediaServiceConnector.GetMediaItemsFromPlayer(controller)
     }
 }

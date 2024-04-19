@@ -11,7 +11,8 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { ellipse, square, triangle } from 'ionicons/icons';
-import Tab1 from './pages/Tab1';
+import MediaBrowserPage from './pages/MediaBrowserPage';
+import NowPlayingQueuePage from './pages/NowPlayingQueuePage';
 import Tab2 from './pages/Tab2';
 import Tab3 from './pages/Tab3';
 
@@ -41,27 +42,34 @@ const App: React.FC = () => (
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
-          <Route exact path="/tab1/:id?">
-            <Tab1 />
+          <Route exact path="/mediabrowser/:id?">
+            <MediaBrowserPage />
           </Route>
           <Route exact path="/tab2">
             <Tab2 />
+          </Route>
+          <Route exact path="/nowplayingqueue">
+            <NowPlayingQueuePage />
           </Route>
           <Route path="/tab3">
             <Tab3 />
           </Route>
           <Route exact path="/">
-            <Redirect to="/tab1" />
+            <Redirect to="/mediabrowser" />
           </Route>
         </IonRouterOutlet>
         <IonTabBar slot="bottom">
-          <IonTabButton tab="tab1" href="/tab1">
+          <IonTabButton tab="mediabrowser" href="/mediabrowser">
             <IonIcon aria-hidden="true" icon={triangle} />
             <IonLabel>Media Browser</IonLabel>
           </IonTabButton>
           <IonTabButton tab="tab2" href="/tab2">
             <IonIcon aria-hidden="true" icon={ellipse} />
             <IonLabel>Now Playing</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="nowplayingqueue" href="/nowplayingqueue">
+            <IonIcon aria-hidden="true" icon={ellipse} />
+            <IonLabel>Queue</IonLabel>
           </IonTabButton>
           <IonTabButton tab="tab3" href="/tab3">
             <IonIcon aria-hidden="true" icon={square} />
