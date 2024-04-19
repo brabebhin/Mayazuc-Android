@@ -1,6 +1,6 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFab, IonFabButton, IonIcon, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
 import './Tab1.css';
-import { MediaItemDto } from '../MediaItemDto';
+import { FODLER_TYPE_MIXED, FOLDER_TYPE_NONE, FOLDER_TYPE_TITLES, MediaItemDto } from '../MediaItemDto';
 import MediaController from '../android-media-controller';
 import React, { Component, useEffect, useState, useRef } from 'react';
 import { render } from 'react-dom';
@@ -13,72 +13,55 @@ import Checkbox from '@mui/material/Checkbox';
 import Avatar from '@mui/material/Avatar';
 import { Box } from '@mui/material';
 import { Capacitor } from '@capacitor/core'
-import { App } from '@capacitor/app';
+import { App, BackButtonListenerEvent } from '@capacitor/app';
+import { useParams, useHistory } from 'react-router-dom';
 
 const Tab1: React.FC = () => {
-  const backStack = useRef<MediaItemDto[]>([]);
 
   const currentItem = useRef<MediaItemDto | null>(null);
   const [mediaItemsFiles, setmediaItemsFiles] = useState<MediaItemDto[]>([]);
   const [mediaItemsMixed, setmediaItemsMixed] = useState<MediaItemDto[]>([]);
   const [mediaItemsTitles, setmediaItemsTitles] = useState<MediaItemDto[]>([]);
 
+  const { id } = useParams<{ id?: string }>();
+  const history = useHistory();
+
   const rootMediaItem = () => {
     let item: MediaItemDto = new MediaItemDto();
     item.mediaId = "[rootID]";
+    item.type = "FOLDER_TYPE_MIXED";
     return item;
   };
 
   useEffect(() => {
     // Code to run on first initialization
-    console.log('Component initialized');
     componentDidMount();
-  }, []); // Empty dependency array ensures that the effect runs only once on component mount
+  }, []); 
 
-
-  const handleBackButton = async () => {
-    // Your logic to handle the back button press
-    console.log('Android back button pressed');
-    console.log('backstack has ' + backStack.current.length);
-
-    var previousItem = backStack.current.pop();
-  
-    console.log('privious item id ' + previousItem!.mediaId);
-    if (previousItem != null) {
-      await loadMediaItem(previousItem!, false);
-      return true;
-    }
-    else
-      return false;
-    
-  };
-
-  // Register the back button handler when the page enters the view stack
-  useIonViewDidEnter(() => {
-
-    App.addListener('backButton', handleBackButton);
-  });
-
-  useIonViewDidLeave(() => {
-    App.removeAllListeners();
-  });
 
   const componentDidMount = async () => {
-    // Perform initialization tasks, data fetching, etc.
-    await loadMediaItem(rootMediaItem(), true);
-    //alert("loading back button handler");
+    if (id == null || id == undefined) {
+      await loadMediaID(rootMediaItem().mediaId);
+    }
+    else {
+      await loadMediaID(decodeURIComponent(id));
+    }
   };
 
-  const loadMediaItem = async (item: MediaItemDto, addToBackStack: boolean): Promise<void> => {
-    
-    if (currentItem.current != null && addToBackStack) {
-      console.log('pushing to backstack ' + currentItem!.current!.mediaId);
-      backStack.current.push(currentItem!.current!);
-    }
+  const loadMediaItem = async (item: MediaItemDto): Promise<void> => {
 
-    await loadMediaID(item.mediaId);
-    currentItem.current = item;
-    console.log('current item id = ' + currentItem!.current!.mediaId);
+    if (item.type == FODLER_TYPE_MIXED) {      
+      let finalMediaIdRoute = item.mediaId;
+      if (finalMediaIdRoute.startsWith('/')) {
+        finalMediaIdRoute = finalMediaIdRoute.substring(1, finalMediaIdRoute.length);
+      }
+      let route = `/tab1/${encodeURIComponent(finalMediaIdRoute)}`
+      history.push(route);
+      currentItem.current = item;
+    }
+    else {
+      await MediaController.playMediaId({ value: item.mediaId });
+    }
 
   };
 
@@ -86,7 +69,6 @@ const Tab1: React.FC = () => {
   const loadMediaID = async (mediaItem: string): Promise<void> => {
 
     const { value } = await MediaController.openMediaId({ value: mediaItem });
-    console.log("B:AB:ABLA" + value);
 
     var newMixedItems: MediaItemDto[] = [];
     var newMFileItems: MediaItemDto[] = [];
@@ -96,13 +78,13 @@ const Tab1: React.FC = () => {
     var newItems: MediaItemDto[] = JSON.parse(value);
     for (let i = 0; i < newItems.length; i++) {
       var item = newItems[i];
-      if (item.type == "FOLDER_TYPE_MIXED") {
+      if (item.type == FODLER_TYPE_MIXED) {
         newMixedItems.push(item);
       }
-      else if (item.type == "FOLDER_TYPE_TITLES") {
+      else if (item.type == FOLDER_TYPE_TITLES) {
         newTitleItems.push(item);
       }
-      else if (item.type == "FOLDER_TYPE_NONE") {
+      else if (item.type == FOLDER_TYPE_NONE) {
         newMFileItems.push(item);
       }
     }
@@ -186,7 +168,7 @@ const Tab1: React.FC = () => {
                     secondaryAction={
                       <Checkbox
                         edge="end"
-                        onChange={() => { handleToggle(value); alert(value.isSelected.toString()) }}
+                        onChange={() => { handleToggle(value); }}
                         checked={value.isSelected}
                         inputProps={{ 'aria-labelledby': labelId }}
                       />

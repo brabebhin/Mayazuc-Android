@@ -13,22 +13,19 @@ import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.session.LibraryResult;
 import androidx.media3.session.MediaBrowser;
+
+import com.getcapacitor.BridgeActivity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 
-public class MainActivity extends MediaControllerActivity {
+public class MainActivity extends BridgeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         registerPlugin(MediaControllerIonicPlugin.class);
         super.onCreate(savedInstanceState);
         CheckPermissions();
-    }
-
-    @Override
-    protected void setController() {
-
     }
 
     private void CheckPermissions() {

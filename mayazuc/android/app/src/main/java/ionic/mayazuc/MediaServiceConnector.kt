@@ -16,7 +16,6 @@ import ionic.mayazuc.Utilities.getPlaybaleItems
 
 object MediaServiceConnector {
     private var browserFuture: ListenableFuture<MediaBrowser>? = null
-    private val treePathStack: ArrayDeque<MediaItem> = ArrayDeque()
     private val browser: MediaBrowser?
         get() = if (browserFuture?.isDone!!) browserFuture?.get() else null
 
@@ -32,15 +31,16 @@ object MediaServiceConnector {
                         .buildAsync()
             }
 
-            browserFuture?.addListener({ pushRoot() }, MoreExecutors.directExecutor())
             return browserFuture!!
         }
     }
 
     fun releaseBrowser() {
         synchronized(this) {
-            if (browserFuture != null)
+            if (browserFuture != null) {
                 MediaBrowser.releaseFuture(browserFuture!!)
+                browserFuture = null;
+            }
         }
     }
 
@@ -53,19 +53,8 @@ object MediaServiceConnector {
         initializeBrowser().addListener({
                 val children = browser?.getChildren(finalMediaId, 0, Int.MAX_VALUE, null);
                 children?.addListener({
-
-                    if(finalMediaId.isPlayCommand())
-                    {
-                        browser?.setMediaItems(children.get().value!!.getPlaybaleItems());
-                    }
-                    else if(finalMediaId.isEnqueueCommand())
-                    {
-                        browser?.addMediaItems(children.get().value!!.getPlaybaleItems());
-                    }
-                        returnValue.set(children.get());
+                    returnValue.set(children.get());
                 }, MoreExecutors.directExecutor());
-
-
         },MoreExecutors.directExecutor())
 
         return returnValue;
@@ -74,15 +63,5 @@ object MediaServiceConnector {
     fun getLibraryRoot(): ListenableFuture<LibraryResult<MediaItem>>?
     {
         return browser?.getLibraryRoot(null);
-    }
-
-
-    private fun pushRoot() {
-        this.toString()
-        // browser can be initialized many times
-        // only push root at the first initialization
-        if (!treePathStack.isEmpty()) {
-            return
-        }
     }
 }

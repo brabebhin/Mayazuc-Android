@@ -11,27 +11,75 @@ import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.CapacitorPlugin
 import com.google.common.util.concurrent.MoreExecutors
 import com.google.gson.Gson
+import ionic.mayazuc.Utilities.getPlaybaleItems
 
 
 @CapacitorPlugin(name = "AndroidMediaController")
 class MediaControllerIonicPlugin : Plugin() {
+    override fun handleOnPause() {
+        MediaServiceConnector.initializeBrowser();
+        super.handleOnPause()
+    }
+
+    override fun handleOnStart() {
+        MediaServiceConnector.releaseBrowser();
+        super.handleOnStart()
+    }
 
     @PluginMethod
     fun openMediaId(call: PluginCall) {
 
         Handler(Looper.getMainLooper()).post(Runnable {
 
-        val mediaId = call.getString("value");
-        val resultOperation = MediaServiceConnector.openMediaId(mediaId);
-        resultOperation.addListener({
-            val result = JSObject();
-            val items = ArrayList<MediaItemDTO>();
-            resultOperation.get().value?.forEach { items.add(MediaItemDTO.createFromMediaItem(it)) }
-            val converter = Gson();
-            val json = converter.toJson(items);
-            result.put("value", json)
-            call.resolve(result);
-        }, MoreExecutors.directExecutor());
+            val mediaId = call.getString("value");
+            val resultOperation = MediaServiceConnector.openMediaId(mediaId);
+            resultOperation.addListener({
+                val result = JSObject();
+                val items = ArrayList<MediaItemDTO>();
+                resultOperation.get().value?.forEach { items.add(MediaItemDTO.createFromMediaItem(it)) }
+                val converter = Gson();
+                val json = converter.toJson(items);
+                result.put("value", json)
+                call.resolve(result);
+            }, MoreExecutors.directExecutor());
+        })
+    }
+
+    @PluginMethod
+    fun playMediaId(call: PluginCall) {
+        Handler(Looper.getMainLooper()).post(Runnable {
+
+            val mediaId = call.getString("value");
+            val resultOperation = MediaServiceConnector.openMediaId(mediaId);
+            resultOperation.addListener({
+                val items = resultOperation.get().value?.getPlaybaleItems()!!
+
+                if (mediaId!!.isPlayCommand()) {
+                    MediaPlayerUtilities.playMediaItemsAsync(items);
+                } else if (mediaId!!.isEnqueueCommand()) {
+                    MediaPlayerUtilities.addMediaItemsToNowPlayingAsync(items)
+                }
+
+                call.resolve();
+            }, MoreExecutors.directExecutor());
+        })
+    }
+
+    @PluginMethod
+    fun getPlaybackQueue(call: PluginCall) {
+
+        Handler(Looper.getMainLooper()).post(Runnable {
+
+            val resultOperation = MediaPlayerUtilities.getCurrentPlaybackQueue()
+            resultOperation.addListener({
+                val result = JSObject();
+                val items = ArrayList<MediaItemDTO>();
+                resultOperation.get().forEach { items.add(MediaItemDTO.createFromMediaItem(it)) }
+                val converter = Gson();
+                val json = converter.toJson(items);
+                result.put("value", json)
+                call.resolve(result);
+            }, MoreExecutors.directExecutor());
         })
     }
 
@@ -57,21 +105,21 @@ class MediaControllerIonicPlugin : Plugin() {
     }
 }
 
-data class MediaItemDTO(val mediaId: String, val title: String, val imageUrl: String, val type: String) {
+data class MediaItemDTO(
+    val mediaId: String,
+    val title: String,
+    val imageUrl: String,
+    val type: String
+) {
     companion object {
         fun createFromMediaItem(item: MediaItem): MediaItemDTO {
             var type = "FOLDER_TYPE_MIXED";
             val metadata = item.mediaMetadata;
-            if(metadata.folderType == FOLDER_TYPE_MIXED)
-            {
-                type="FOLDER_TYPE_MIXED"; // folders
-            }
-            else if(metadata.folderType == FOLDER_TYPE_TITLES)
-            {
+            if (metadata.folderType == FOLDER_TYPE_MIXED) {
+                type = "FOLDER_TYPE_MIXED"; // folders
+            } else if (metadata.folderType == FOLDER_TYPE_TITLES) {
                 type = "FOLDER_TYPE_TITLES"; //play commands
-            }
-            else if(metadata.folderType == FOLDER_TYPE_NONE)
-            {
+            } else if (metadata.folderType == FOLDER_TYPE_NONE) {
                 type = "FOLDER_TYPE_NONE"; // single file
             }
             return MediaItemDTO(

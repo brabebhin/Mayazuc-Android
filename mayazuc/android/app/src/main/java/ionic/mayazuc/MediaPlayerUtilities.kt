@@ -6,8 +6,11 @@ import androidx.media3.session.MediaBrowser
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import com.google.common.util.concurrent.SettableFuture
 import okhttp3.internal.immutableListOf
+import java.util.concurrent.CompletableFuture
 
 object MediaPlayerUtilities {
     fun playMediaItemsAsync(subItemMediaList: List<MediaItem>) {
@@ -27,8 +30,7 @@ object MediaPlayerUtilities {
         )
     }
 
-    fun playMediaItemAsync(mediaItem: MediaItem)
-    {
+    fun playMediaItemAsync(mediaItem: MediaItem) {
         playMediaItemsAsync(listOf(mediaItem));
     }
 
@@ -107,6 +109,19 @@ object MediaPlayerUtilities {
         result.prepare()
         result.seekTo(currentIndex, 0);
         result.play()
+    }
+
+    fun getCurrentPlaybackQueue(): ListenableFuture<ImmutableList<MediaItem>> {
+        val returnValue = SettableFuture.create<ImmutableList<MediaItem>>()
+        var currentPlayer = MediaServiceConnector.initializeBrowser();
+        currentPlayer.addListener({
+
+            val values = GetMediaItemsFromPlayer(currentPlayer.get());
+            returnValue.set(values);
+
+        }, MoreExecutors.directExecutor());
+
+        return returnValue;
     }
 
     fun GetMediaItemsFromPlayer(controller: Player): ImmutableList<MediaItem> {
