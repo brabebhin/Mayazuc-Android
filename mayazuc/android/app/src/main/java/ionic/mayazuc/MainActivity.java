@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.webkit.WebSettings;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.media3.common.MediaItem;
@@ -26,6 +28,38 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(MediaControllerIonicPlugin.class);
         super.onCreate(savedInstanceState);
         CheckPermissions();
+    }
+
+    @Override
+    public void onStart() {
+        setDarkMode();
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        setDarkMode();
+        super.onResume();
+    }
+
+    void setDarkMode() {
+        // Android "fix" for enabling dark mode
+        // @see: https://github.com/ionic-team/capacitor/discussions/1978
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        WebSettings webSettings = this.bridge.getWebView().getSettings();
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                // As of Android 10, you can simply force the dark mode
+                webSettings.setForceDark(WebSettings.FORCE_DARK_ON);
+            }
+            // Before Android 10, we need to use a CSS class based fallback
+            this.bridge.getWebView().evaluateJavascript("document.body.classList.toggle('dark', true);", null);
+        } else {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                webSettings.setForceDark(WebSettings.FORCE_DARK_OFF);
+            }
+            this.bridge.getWebView().evaluateJavascript("document.body.classList.toggle('dark', false);", null);
+        }
     }
 
     private void CheckPermissions() {

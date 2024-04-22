@@ -314,9 +314,7 @@ object MediaItemTree {
                     mediaId = FOLDERS_ID,
                     isPlayable = false,
                     folderType = FOLDER_TYPE_MIXED,
-                    imageUri = Utilities.GetUriResource(
-                        R.drawable.foldericon,
-                        context = MCApplication.context!!
+                    imageUri = Utilities.GetAndroidAutoCoverResource((MCApplication.FolderIconPath)
                     ),
                 ), rootPath = null,
                 filesOnly = false

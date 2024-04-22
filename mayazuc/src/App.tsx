@@ -13,7 +13,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import { ellipse, square, triangle } from 'ionicons/icons';
 import MediaBrowserPage from './pages/MediaBrowserPage';
 import NowPlayingQueuePage from './pages/NowPlayingQueuePage';
-import Tab2 from './pages/Tab2';
+import NowPlayingPage from './pages/NowPlayingView';
 import Tab3 from './pages/Tab3';
 
 /* Core CSS required for Ionic components to work properly */
@@ -46,7 +46,7 @@ const App: React.FC = () => (
             <MediaBrowserPage />
           </Route>
           <Route exact path="/tab2">
-            <Tab2 />
+            <NowPlayingPage />
           </Route>
           <Route exact path="/nowplayingqueue">
             <NowPlayingQueuePage />

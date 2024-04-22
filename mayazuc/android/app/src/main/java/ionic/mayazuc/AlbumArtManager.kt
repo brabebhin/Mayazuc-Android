@@ -157,7 +157,8 @@ class AlbumArtScanWorker(context: Context, parameters: WorkerParameters) :
                 .beginUniqueWork(
                     context.getString(R.string.album_art_job_name),
                     ExistingWorkPolicy.KEEP,
-                    OneTimeWorkRequest.Builder(AlbumArtScanWorker::class.java).setInputData(
+                    OneTimeWorkRequest.Builder(AlbumArtScanWorker::class.java)
+                        .setInputData(
                         Data.Builder().putBoolean(
                             DeleteParameter, deleteCache
                         ).build()
@@ -198,7 +199,8 @@ class AlbumArtScanWorker(context: Context, parameters: WorkerParameters) :
 
         for (p in files) {
 
-            AlbumArtManager.ExtractAlbumArtFileInternal(p)
+            if(AlbumArtManager.TryGetAlbumArtForFile(p)== MCApplication.MissingAlbumArtIconPath)
+                AlbumArtManager.ExtractAlbumArtFileInternal(p)
             filesProcessedSoFar++
 
             setForeground(createForegroundInfo("Files: " + filesProcessedSoFar + " / " + files.size))
