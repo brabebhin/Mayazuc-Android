@@ -22,14 +22,18 @@
     padding: 10px;
   }
   
-  .grid-item {
+
+  .grid-item-5 {
     background-color: rgba(255, 255, 77, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.8);
     padding: 20px;
     font-size: 30px;
     text-align: center;
     vertical-align: center;
+    grid-column-start: 1;
+    grid-column-end: 5;
   }
+
 
 
   .main-container {
@@ -42,3 +46,15 @@
     flex: 1;
     overflow: auto;
   }
+
+  .slidecontainer {
+    display: flex;
+    width: 100%; /* Width of the outside container */
+  }
+
+  /* The slider itself */
+.slider {
+  display: flex;
+  width: 100%; /* Full-width */
+  height: 25px; /* Specified height */
+}

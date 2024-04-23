@@ -5,6 +5,7 @@ import android.os.Looper
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata.*
 import androidx.media3.session.LibraryResult
+import androidx.media3.session.MediaBrowser
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
@@ -184,6 +185,27 @@ class MediaControllerIonicPlugin : Plugin() {
         call.resolve(result);
     }
 
+     @PluginMethod
+    fun playbackState(call: PluginCall)
+    {
+        Futures.addCallback(MediaServiceConnector.initializeBrowser(), object: FutureCallback<MediaBrowser>{
+            override fun onSuccess(result: MediaBrowser?) {
+
+                val resultObj = JSObject();
+                val converter = Gson();
+                val timelineInfo = MediaStateInfo(result!!.contentPosition, result!!.contentDuration, result!!.isPlaying());
+                val json = converter.toJson(timelineInfo);
+                resultObj.put("value", json)
+                call.resolve(resultObj);
+            }
+
+            override fun onFailure(t: Throwable) {
+                genericErrorReturn(call);
+            }
+
+        }, MoreExecutors.directExecutor())
+    }
+
     @PluginMethod
     fun autoPlayPause(call: PluginCall) {
 
@@ -204,6 +226,11 @@ class MediaControllerIonicPlugin : Plugin() {
     fun seek(call: PluginCall) {
 
     }
+}
+
+data class MediaStateInfo(val position: Long, val duration: Long, val isPlaying: Boolean, val timelineProgress: Long = (position/ duration) * 100)
+{
+
 }
 
 data class MediaItemDTO(

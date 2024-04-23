@@ -6,6 +6,7 @@ export interface MediaControllerIonicPlugin {
     getPlaybackQueue(options: { value: string }): Promise<{value: string}>;
     skipToQueueItem(options: { value: string }): Promise<{value: string}>;
     autoPlayPause(options: { value: string }): Promise<{ value: string }>;
+    playbackState(options: { value: string }): Promise<{value: string}>;
     skipNext(options: { value: string }): Promise<{ value: string }>;
     skipPrevious(options: { value: string }): Promise<{ value: string }>;
     seek(options: { value: string }): Promise<{ value: string }>;
