@@ -249,12 +249,46 @@ class MediaControllerIonicPlugin : Plugin() {
 
     @PluginMethod
     fun skipNext(call: PluginCall) {
+        Handler(Looper.getMainLooper()).post(Runnable {
+            Futures.addCallback(
+                MediaServiceConnector.initializeBrowser(),
+                object : FutureCallback<MediaBrowser> {
+                    override fun onSuccess(result: MediaBrowser?) {
+
+                        result!!.seekToNextMediaItem();
+                        call.resolve();
+                    }
+
+                    override fun onFailure(t: Throwable) {
+                        genericErrorReturn(call);
+                    }
+
+                },
+                MoreExecutors.directExecutor()
+            )
+        })
 
     }
 
     @PluginMethod
     fun skipPrevious(call: PluginCall) {
+        Handler(Looper.getMainLooper()).post(Runnable {
+            Futures.addCallback(
+                MediaServiceConnector.initializeBrowser(),
+                object : FutureCallback<MediaBrowser> {
+                    override fun onSuccess(result: MediaBrowser?) {
 
+                        result!!.seekToPreviousMediaItem();
+                        call.resolve();
+                    }
+
+                    override fun onFailure(t: Throwable) {
+                        genericErrorReturn(call);
+                    }
+
+                },
+                MoreExecutors.directExecutor()
+            )})
     }
 
     @PluginMethod

@@ -17,9 +17,9 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import org.videolan.libvlc.*
 
-private const val SeekBackPreviousMaxLength: Long = 5000
-private const val SeekBackIncrement: Long = 5000
-private const val SeekForwardIcrement: Long = 15000
+public const val SeekBackPreviousMaxLength: Long = 5000
+public const val SeekBackIncrement: Long = 5000
+public const val SeekForwardIcrement: Long = 15000
 const val TIME_CURRENT_POSITION = -3423901L;
 
 @UnstableApi

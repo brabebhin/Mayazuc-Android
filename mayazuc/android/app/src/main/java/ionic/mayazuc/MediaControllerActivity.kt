@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 
-abstract class MediaControllerActivity : BridgeActivity() {
+open class MediaControllerActivity : BridgeActivity() {
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     protected val controller: MediaController?
         get() = if (controllerFuture.isDone) controllerFuture.get() else null
@@ -41,11 +41,8 @@ abstract class MediaControllerActivity : BridgeActivity() {
         MediaController.releaseFuture(controllerFuture)
     }
 
-    protected abstract fun setController()
+    protected open fun setController()
+    {
 
-    protected fun getPlaylistFromController(): ImmutableList<MediaItem> {
-        val controller = this.controller ?: return ImmutableList.of()
-
-        return MediaServiceConnector.GetMediaItemsFromPlayer(controller)
     }
 }

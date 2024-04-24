@@ -25,7 +25,9 @@ class LibVlcForwardingPlayer(val player: LibVlcPlayer) : ForwardingPlayer(player
     }
 
     override fun seekToPrevious() {
-        super.seekToPrevious()
+        if (contentPosition < SeekBackIncrement)
+            super.seekToPrevious()
+        else this.seekTo(0);
     }
 
     override fun getCurrentMediaItemIndex(): Int {
@@ -45,7 +47,9 @@ class LibVlcForwardingPlayer(val player: LibVlcPlayer) : ForwardingPlayer(player
     }
 
     override fun seekToPreviousMediaItem() {
-        super.seekToPreviousMediaItem()
+        if (contentPosition < SeekBackIncrement)
+            super.seekToPreviousMediaItem()
+        else this.seekTo(0);
     }
 
     override fun getRepeatMode(): Int {

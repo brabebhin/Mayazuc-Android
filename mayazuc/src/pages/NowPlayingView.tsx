@@ -83,7 +83,6 @@ class NowPlayingPage extends React.Component {
           <div className="main-container">
             <div className="half-containers">
               <img ref={this.albumArtImage} src={this.state.albumArtUrl} className="grid-item">
-
               </img>
             </div>
             <div className="half-containers">
@@ -91,16 +90,15 @@ class NowPlayingPage extends React.Component {
                 <input type='range' id='mediaSlider' min="0" max="100" ref={this.mediaSlider} onPointerDown={(event) => { console.log('mousedown'); this.sliderUserInteracts = true }} onPointerUp={(event) => { console.log('mouseup ' + this.mediaSlider.current!!.value); this.seekToPosition(this.mediaSlider.current!!.value); }} className='slider'></input>
               </div>
 
-
               <div className="grid-container-5">
                 <div className="grid-item">
-                  <IconButton aria-label="skip previous" size='large'>
-                    <SkipPrevious  fontSize="large"/>
+                  <IconButton aria-label="skip previous"  onClick={()=>{MediaController.skipPrevious({value: ""})}}size='large'>
+                    <SkipPrevious color='primary' fontSize="large"/>
                   </IconButton>
                 </div>
                 <div className="grid-item">
                   <IconButton aria-label="rewind" size='large'>
-                    <FastRewind  fontSize="large"/>
+                    <FastRewind  color='primary'  fontSize="large"/>
                   </IconButton>
                 </div>
                 <div className="grid-item">
@@ -108,20 +106,17 @@ class NowPlayingPage extends React.Component {
                 </div>
                 <div className="grid-item">
                   <IconButton aria-label="fast forward"  size='large'>
-                    <FastForward  fontSize="large"/>
+                    <FastForward  color='primary'  fontSize="large"/>
                   </IconButton>
                 </div>
                 <div className="grid-item">
-                  <IconButton aria-label="skip next"  size='large'>
-                    <SkipNext  fontSize="large"/>
+                  <IconButton aria-label="skip next" onClick={()=>{MediaController.skipNext({value: ""})}}  size='large'>
+                    <SkipNext  color='primary'  fontSize="large"/>
                   </IconButton>
                 </div>
               </div>
             </div>
           </div>
-
-
-
         </IonContent>
       </IonPage>
     );

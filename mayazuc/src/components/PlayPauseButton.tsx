@@ -8,7 +8,7 @@ interface PlayPauseButtonProps {
 
 const playPauseButton: React.FC<PlayPauseButtonProps> = ({ isPlaying }) => {
     return (
-        <IconButton size="large" aria-label="Play Pause" onClick={() => {
+        <IconButton size="large"  color='primary'  aria-label="Play Pause" onClick={() => {
             MediaController.autoPlayPause({ value: "" });
         }} >
             {isPlaying ? <Pause fontSize="large"/> : <PlayArrow  fontSize="large"/>}

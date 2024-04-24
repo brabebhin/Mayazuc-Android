@@ -181,8 +181,4 @@ class MainActivityOld : MediaControllerActivity() {
         super.onStart()
         MediaServiceConnector.initializeBrowser()
     }
-
-    override fun setController() {
-
-    }
 }

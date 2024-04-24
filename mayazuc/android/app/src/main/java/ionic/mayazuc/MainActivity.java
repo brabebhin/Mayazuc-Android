@@ -22,7 +22,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 
-public class MainActivity extends BridgeActivity {
+public class MainActivity extends MediaControllerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         registerPlugin(MediaControllerIonicPlugin.class);
