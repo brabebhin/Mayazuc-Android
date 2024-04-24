@@ -3,4 +3,5 @@ export class MediaStateInfo {
     duration: number = 0;
     timelineProgress: number = 0;
     isPlaying: boolean = false;
+    albumArtUrl: string = ""
 }

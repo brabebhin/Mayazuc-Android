@@ -2,6 +2,7 @@ package ionic.mayazuc
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata.*
 import androidx.media3.session.LibraryResult
@@ -23,12 +24,16 @@ import ionic.mayazuc.Utilities.getPlaybaleItems
 @CapacitorPlugin(name = "AndroidMediaController")
 class MediaControllerIonicPlugin : Plugin() {
     override fun handleOnPause() {
-        MediaServiceConnector.initializeBrowser();
+        Handler(Looper.getMainLooper()).post(Runnable {
+            MediaServiceConnector.initializeBrowser();
+        });
         super.handleOnPause()
     }
 
     override fun handleOnStart() {
-        MediaServiceConnector.releaseBrowser();
+        Handler(Looper.getMainLooper()).post(Runnable {
+            MediaServiceConnector.releaseBrowser();
+        });
         super.handleOnStart()
     }
 
@@ -134,19 +139,23 @@ class MediaControllerIonicPlugin : Plugin() {
                         }
 
                         val skipItem = resultOperation.get()!!.value!!.get(0);
-                        var skipToQueueItemOperation = MediaServiceConnector.skipToQueueItemAsync(skipItem);
+                        var skipToQueueItemOperation =
+                            MediaServiceConnector.skipToQueueItemAsync(skipItem);
 
-                        Futures.addCallback(skipToQueueItemOperation, object: FutureCallback<ImmutableList<MediaItem>>
-                        {
-                            override fun onSuccess(result: ImmutableList<MediaItem>?) {
-                                mediaItemListReturn(skipToQueueItemOperation, call)
-                            }
+                        Futures.addCallback(
+                            skipToQueueItemOperation,
+                            object : FutureCallback<ImmutableList<MediaItem>> {
+                                override fun onSuccess(result: ImmutableList<MediaItem>?) {
+                                    mediaItemListReturn(skipToQueueItemOperation, call)
+                                }
 
-                            override fun onFailure(t: Throwable) {
-                                genericErrorReturn(call)
-                            }
+                                override fun onFailure(t: Throwable) {
+                                    genericErrorReturn(call)
+                                }
 
-                        }, MoreExecutors.directExecutor());
+                            },
+                            MoreExecutors.directExecutor()
+                        );
                     }
 
                     override fun onFailure(t: Throwable) {
@@ -158,7 +167,6 @@ class MediaControllerIonicPlugin : Plugin() {
             )
 
             resultOperation.addListener({
-
 
 
             }, MoreExecutors.directExecutor());
@@ -185,30 +193,57 @@ class MediaControllerIonicPlugin : Plugin() {
         call.resolve(result);
     }
 
-     @PluginMethod
-    fun playbackState(call: PluginCall)
-    {
-        Futures.addCallback(MediaServiceConnector.initializeBrowser(), object: FutureCallback<MediaBrowser>{
-            override fun onSuccess(result: MediaBrowser?) {
+    @PluginMethod
+    fun playbackState(call: PluginCall) {
+        Handler(Looper.getMainLooper()).post(Runnable {
+            Futures.addCallback(
+                MediaServiceConnector.initializeBrowser(),
+                object : FutureCallback<MediaBrowser> {
+                    override fun onSuccess(result: MediaBrowser?) {
 
-                val resultObj = JSObject();
-                val converter = Gson();
-                val timelineInfo = MediaStateInfo(result!!.contentPosition, result!!.contentDuration, result!!.isPlaying());
-                val json = converter.toJson(timelineInfo);
-                resultObj.put("value", json)
-                call.resolve(resultObj);
-            }
+                        val resultObj = JSObject();
+                        val converter = Gson();
+                        val timelineInfo = MediaStateInfo(
+                            result!!.contentPosition,
+                            result!!.contentDuration,
+                            result!!.isPlaying(),
+                            result.mediaMetadata.artworkUri!!.path!!,
+                        );
+                        val json = converter.toJson(timelineInfo);
+                        resultObj.put("value", json)
+                        call.resolve(resultObj);
+                    }
 
-            override fun onFailure(t: Throwable) {
-                genericErrorReturn(call);
-            }
+                    override fun onFailure(t: Throwable) {
+                        genericErrorReturn(call);
+                    }
 
-        }, MoreExecutors.directExecutor())
+                },
+                MoreExecutors.directExecutor()
+            )
+        })
     }
 
     @PluginMethod
     fun autoPlayPause(call: PluginCall) {
+        Handler(Looper.getMainLooper()).post(Runnable {
+            Futures.addCallback(
+                MediaServiceConnector.initializeBrowser(),
+                object : FutureCallback<MediaBrowser> {
+                    override fun onSuccess(result: MediaBrowser?) {
 
+                        if(result!!.isPlaying) result.pause() else result.play();
+                        call.resolve();
+                    }
+
+                    override fun onFailure(t: Throwable) {
+                        genericErrorReturn(call);
+                    }
+
+                },
+                MoreExecutors.directExecutor()
+            )
+        })
 
     }
 
@@ -224,12 +259,38 @@ class MediaControllerIonicPlugin : Plugin() {
 
     @PluginMethod
     fun seek(call: PluginCall) {
+        val seekPosition = call.getString("value")?.toFloat();
+        if(seekPosition==null)
+        {
+            genericErrorReturn(call);
+            return;
+        }
+        Handler(Looper.getMainLooper()).post(Runnable {
+            Futures.addCallback(
+                MediaServiceConnector.initializeBrowser(),
+                object : FutureCallback<MediaBrowser> {
+                    override fun onSuccess(result: MediaBrowser?) {
+                       result?.seekTo((result!!.contentDuration * (seekPosition / 100)).toLong());
+                    }
 
+                    override fun onFailure(t: Throwable) {
+                        genericErrorReturn(call);
+                    }
+
+                },
+                MoreExecutors.directExecutor()
+            )
+        })
     }
 }
 
-data class MediaStateInfo(val position: Long, val duration: Long, val isPlaying: Boolean, val timelineProgress: Long = (position/ duration) * 100)
-{
+data class MediaStateInfo(
+    val position: Long,
+    val duration: Long,
+    val isPlaying: Boolean,
+    val albumArtUrl: String,
+    val timelineProgress: Float = if(duration!=0L) (position.toFloat() / duration.toFloat()) * 100 else 0F
+) {
 
 }
 
