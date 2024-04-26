@@ -90,6 +90,8 @@ const NowPlayingQueuePage: React.FC = () => {
                                         <ListItemButton onClick={() => { loadMediaItem(value); }}>
                                             <ListItemAvatar>
                                                 <Avatar
+                                                    variant='square'
+                                                    sizes='large'
                                                     alt={`${value.title}`}
                                                     src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
                                                 />

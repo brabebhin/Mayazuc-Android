@@ -232,7 +232,7 @@ class MediaControllerIonicPlugin : Plugin() {
                 object : FutureCallback<MediaBrowser> {
                     override fun onSuccess(result: MediaBrowser?) {
 
-                        if(result!!.isPlaying) result.pause() else result.play();
+                        if (result!!.isPlaying) result.pause() else result.play();
                         call.resolve();
                     }
 
@@ -267,7 +267,6 @@ class MediaControllerIonicPlugin : Plugin() {
                 MoreExecutors.directExecutor()
             )
         })
-
     }
 
     @PluginMethod
@@ -288,14 +287,14 @@ class MediaControllerIonicPlugin : Plugin() {
 
                 },
                 MoreExecutors.directExecutor()
-            )})
+            )
+        })
     }
 
     @PluginMethod
     fun seek(call: PluginCall) {
         val seekPosition = call.getString("value")?.toFloat();
-        if(seekPosition==null)
-        {
+        if (seekPosition == null) {
             genericErrorReturn(call);
             return;
         }
@@ -304,7 +303,47 @@ class MediaControllerIonicPlugin : Plugin() {
                 MediaServiceConnector.initializeBrowser(),
                 object : FutureCallback<MediaBrowser> {
                     override fun onSuccess(result: MediaBrowser?) {
-                       result?.seekTo((result!!.contentDuration * (seekPosition / 100)).toLong());
+                        result?.seekTo((result!!.contentDuration * (seekPosition / 100)).toLong());
+                    }
+
+                    override fun onFailure(t: Throwable) {
+                        genericErrorReturn(call);
+                    }
+
+                },
+                MoreExecutors.directExecutor()
+            )
+        })
+    }
+
+    @PluginMethod
+    fun jumpForward(call: PluginCall) {
+        Handler(Looper.getMainLooper()).post(Runnable {
+            Futures.addCallback(
+                MediaServiceConnector.initializeBrowser(),
+                object : FutureCallback<MediaBrowser> {
+                    override fun onSuccess(result: MediaBrowser?) {
+                        result?.seekForward();
+                    }
+
+                    override fun onFailure(t: Throwable) {
+                        genericErrorReturn(call);
+                    }
+
+                },
+                MoreExecutors.directExecutor()
+            )
+        })
+    }
+
+    @PluginMethod
+    fun jumpBackward(call: PluginCall) {
+        Handler(Looper.getMainLooper()).post(Runnable {
+            Futures.addCallback(
+                MediaServiceConnector.initializeBrowser(),
+                object : FutureCallback<MediaBrowser> {
+                    override fun onSuccess(result: MediaBrowser?) {
+                        result?.seekBack();
                     }
 
                     override fun onFailure(t: Throwable) {
@@ -323,7 +362,7 @@ data class MediaStateInfo(
     val duration: Long,
     val isPlaying: Boolean,
     val albumArtUrl: String,
-    val timelineProgress: Float = if(duration!=0L) (position.toFloat() / duration.toFloat()) * 100 else 0F
+    val timelineProgress: Float = if (duration != 0L) (position.toFloat() / duration.toFloat()) * 100 else 0F
 ) {
 
 }

@@ -10,6 +10,8 @@ export interface MediaControllerIonicPlugin {
     skipNext(options: { value: string }): Promise<{ value: string }>;
     skipPrevious(options: { value: string }): Promise<{ value: string }>;
     seek(options: { value: string }): Promise<{ value: string }>;
+    jumpForward(options: { value: string }): Promise<{ value: string }>;
+    jumpBackward(options: { value: string }): Promise<{ value: string }>;
 }
 
 const MediaController = registerPlugin<MediaControllerIonicPlugin>('AndroidMediaController');

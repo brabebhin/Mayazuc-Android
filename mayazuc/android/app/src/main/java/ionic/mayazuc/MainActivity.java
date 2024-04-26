@@ -51,27 +51,26 @@ public class MainActivity extends MediaControllerActivity {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                 // As of Android 10, you can simply force the dark mode
                 webSettings.setForceDark(WebSettings.FORCE_DARK_ON);
-            }
-            // Before Android 10, we need to use a CSS class based fallback
-            this.bridge.getWebView().evaluateJavascript("document.body.classList.toggle('dark', true);", null);
+            } else
+                this.bridge.getWebView().evaluateJavascript("document.body.classList.toggle('dark', true);", null);
         } else {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                 webSettings.setForceDark(WebSettings.FORCE_DARK_OFF);
-            }
-            this.bridge.getWebView().evaluateJavascript("document.body.classList.toggle('dark', false);", null);
+            } else
+                this.bridge.getWebView().evaluateJavascript("document.body.classList.toggle('dark', false);", null);
         }
     }
 
     private void CheckPermissions() {
 
-        var filesPermision = getFileManagementPermission();
+        var filesPermission = getFileManagementPermission();
 
         var permission =
-                ContextCompat.checkSelfPermission(this, filesPermision);
+                ContextCompat.checkSelfPermission(this, filesPermission);
         if (permission != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                     this,
-                    new String[]{filesPermision},
+                    new String[]{filesPermission},
                     69
             );
         } else {

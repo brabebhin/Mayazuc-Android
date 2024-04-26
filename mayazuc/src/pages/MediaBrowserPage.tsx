@@ -36,7 +36,7 @@ const MediaBrowserPage: React.FC = () => {
   useEffect(() => {
     // Code to run on first initialization
     componentDidMount();
-  }, []); 
+  }, []);
 
 
   const componentDidMount = async () => {
@@ -51,8 +51,8 @@ const MediaBrowserPage: React.FC = () => {
   const loadMediaItem = async (item: MediaItemDto): Promise<void> => {
 
     console.log("OPENING MEDIA ITEM " + item.mediaId);
-    
-    if (item.type == FODLER_TYPE_MIXED) {      
+
+    if (item.type == FODLER_TYPE_MIXED) {
       let finalMediaIdRoute = item.mediaId;
       if (finalMediaIdRoute.startsWith('/')) {
         finalMediaIdRoute = finalMediaIdRoute.substring(1, finalMediaIdRoute.length);
@@ -127,6 +127,8 @@ const MediaBrowserPage: React.FC = () => {
                     <ListItemButton onClick={() => { loadMediaItem(value); }}>
                       <ListItemAvatar>
                         <Avatar
+                          variant='square'
+                          sizes='large'
                           alt={`${value.title}`}
                           src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
                         />
@@ -150,6 +152,8 @@ const MediaBrowserPage: React.FC = () => {
                     <ListItemButton onClick={() => { loadMediaItem(value); }}>
                       <ListItemAvatar>
                         <Avatar
+                          variant='square'
+                          sizes='large'
                           alt={`${value.title}`}
                           src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
                         />
@@ -180,6 +184,8 @@ const MediaBrowserPage: React.FC = () => {
                     <ListItemButton onClick={() => { loadMediaItem(value); }}>
                       <ListItemAvatar>
                         <Avatar
+                          variant='square'
+                          sizes='large'
                           alt={`${value.title}`}
                           src={Capacitor.convertFileSrc(decodeURI(value.imageUrl))}
                         />

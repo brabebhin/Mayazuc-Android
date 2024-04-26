@@ -48,10 +48,10 @@ class NowPlayingPage extends React.Component {
     } else {
       this.mediaSlider.current!!.value = newState.timelineProgress.toString();
     }
-    
+
     var albumArtUrlNew = Capacitor.convertFileSrc(decodeURI(newState.albumArtUrl));;
     this.albumArtImage.current!!.src = albumArtUrlNew;
-    this.setState(prevState => ({ isPlaying: newState.isPlaying, albumArtUrl:albumArtUrlNew }));
+    this.setState(prevState => ({ isPlaying: newState.isPlaying, albumArtUrl: albumArtUrlNew }));
   }
 
   seekToPosition(value: string) {
@@ -92,26 +92,26 @@ class NowPlayingPage extends React.Component {
 
               <div className="grid-container-5">
                 <div className="grid-item">
-                  <IconButton aria-label="skip previous"  onClick={()=>{MediaController.skipPrevious({value: ""})}}size='large'>
-                    <SkipPrevious color='primary' fontSize="large"/>
+                  <IconButton aria-label="skip previous" onClick={() => { MediaController.skipPrevious({ value: "" }) }} size='large'>
+                    <SkipPrevious color='primary' fontSize="large" />
                   </IconButton>
                 </div>
                 <div className="grid-item">
-                  <IconButton aria-label="rewind" size='large'>
-                    <FastRewind  color='primary'  fontSize="large"/>
+                  <IconButton aria-label="rewind" onClick={() => { MediaController.jumpBackward({ value: "" }) }} size='large'>
+                    <FastRewind color='primary' fontSize="large" />
                   </IconButton>
                 </div>
                 <div className="grid-item">
-                   <PlayPauseButton isPlaying={this.state.isPlaying}></PlayPauseButton> 
+                  <PlayPauseButton isPlaying={this.state.isPlaying}></PlayPauseButton>
                 </div>
                 <div className="grid-item">
-                  <IconButton aria-label="fast forward"  size='large'>
-                    <FastForward  color='primary'  fontSize="large"/>
+                  <IconButton aria-label="fast forward" onClick={() => { MediaController.jumpForward({ value: "" }) }} size='large'>
+                    <FastForward color='primary' fontSize="large" />
                   </IconButton>
                 </div>
                 <div className="grid-item">
-                  <IconButton aria-label="skip next" onClick={()=>{MediaController.skipNext({value: ""})}}  size='large'>
-                    <SkipNext  color='primary'  fontSize="large"/>
+                  <IconButton aria-label="skip next" onClick={() => { MediaController.skipNext({ value: "" }) }} size='large'>
+                    <SkipNext color='primary' fontSize="large" />
                   </IconButton>
                 </div>
               </div>
